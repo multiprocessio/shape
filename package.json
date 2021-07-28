@@ -2,7 +2,7 @@
   "name": "shape",
   "version": "0.1.0",
   "license": "Apache-2.0",
-  "description": "Infer schema from JavaScript data objects",
+  "description": "Basic schema inference for arbitrary JavaScript data objects",
   "author": "Phil Eaton",
   "main": "./dist/index.js",
   "types": "./dist/shape.d.ts",
