@@ -4,6 +4,9 @@ This library provides an inference of object shape given a JavaScript
 data object. It probably won't work well with circular references. But
 any object that comes from JSON will not have circular references.
 
+It works well on very small or very large objects due to sampling
+(which can be turned off if requested).
+
 You can try it out online in the [DataStation app](https://app.datastation.multiprocess.io/).
 
 ![screenshot](./screenshot.png)
@@ -99,6 +102,17 @@ Will print out:
   'nextPage' of
     string
 ```
+
+## Sampling
+
+This library defaults to checking up to only 5000 elements at any
+level which allows the inferrence to scale to very large datasets. It
+will pick up to N elements randomly with the object to sample. To
+disable this, pass `null`, `undefined`, or `false` as the second
+argument to `shape`. For example `shape(data, false)`.
+
+However, turning off sampling will eventually wreck your stack as you
+pass bigger objects to `shape`.
 
 ## License
 
