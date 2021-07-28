@@ -6,6 +6,8 @@ any object that comes from JSON will not have circular references.
 
 You can try it out online in the [DataStation app](https://app.datastation.multiprocess.io/).
 
+![screenshot](./screenshot.png)
+
 ## Install
 
 ```bash
