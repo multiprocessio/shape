@@ -99,7 +99,7 @@ function objectMerge(a: ObjectShape, b: ObjectShape) {
       }
 
       if (a.children[key].kind === 'varied') {
-        variedMerge(a.children[key], b.children[key]);
+        variedMerge(a.children[key] as VariedShape, b.children[key]);
         continue;
       }
     }
