@@ -6,25 +6,25 @@ function deepClone(a: any) {
   return JSON.parse(JSON.stringify(a));
 }
 
-export type ScalarShape = {
+export interface ScalarShape {
   kind: 'scalar';
   name: 'null' | 'string' | 'number' | 'boolean' | 'bigint';
-};
+}
 
-export type ObjectShape = {
+export interface ObjectShape {
   kind: 'object';
   children: Record<string, Shape>;
-};
+}
 
-export type ArrayShape = {
+export interface ArrayShape {
   kind: 'array';
   children: Shape;
-};
+}
 
-export type VariedShape = {
+export interface VariedShape {
   kind: 'varied';
   children: Shape[];
-};
+}
 
 export type Shape =
   | ArrayShape
@@ -68,43 +68,42 @@ export function toString(shape: Shape, level = 0): string {
   }
 }
 
-function variedMerge(a: VariedShape, b: Shape) {
-  for (let child of a.children) {
-    if (deepEquals(child, b)) {
-      return;
+function variedMerge(a: VariedShape, b: VariedShape): VariedShape {
+  const varied: VariedShape = { kind: 'varied', children: a.children.slice() };
+  for (const bChild of b.children) {
+    for (const aChild of a.children) {
+      if (deepEquals(bChild, aChild)) {
+        continue;
+      }
+
+      varied.children.push(bChild);
     }
   }
 
-  a.children.push(b);
+  return varied;
 }
 
-function objectMerge(a: ObjectShape, b: ObjectShape) {
+function objectMerge(a: ObjectShape, b: ObjectShape): ObjectShape {
   const aKeys = Object.keys(a.children);
   const bKeys = Object.keys(b.children);
+  const merged: ObjectShape = {
+    kind: 'object',
+    children: {},
+  };
 
   // First check all aKeys to see if they differ in b
   for (let i = 0; i < aKeys.length; i++) {
     const key = aKeys[i];
     if (bKeys.includes(key)) {
-      if (deepEquals(a.children[key], b.children[key])) {
-        continue;
-      }
-
-      if (a.children[key].kind === b.children[key].kind) {
-        a.children[key] = {
-          kind: 'varied',
-          children: [a.children[key], b.children[key]],
-        };
-        continue;
-      }
-
-      if (a.children[key].kind === 'varied') {
-        variedMerge(a.children[key] as VariedShape, b.children[key]);
-        continue;
-      }
+      merged.children[key] = merge([a.children[key], b.children[key]]).children;
+      continue;
     }
 
-    // TODO: what case is this?
+    // If they are new, they must sometimes be null/undefined
+    merged.children[key] = {
+      kind: 'varied',
+      children: [a.children[key], { kind: 'scalar', name: 'null' }],
+    };
   }
 
   // now check all bKeys to see if they are new to a
@@ -112,12 +111,16 @@ function objectMerge(a: ObjectShape, b: ObjectShape) {
     const key = bKeys[i];
     if (!aKeys.includes(key)) {
       // If they are new, they must sometimes be null/undefined
-      a.children[key] = {
+      merged.children[key] = {
         kind: 'varied',
         children: [b.children[key], { kind: 'scalar', name: 'null' }],
       };
     }
+
+    // Do nothing, it's already been merged.
   }
+
+  return merged;
 }
 
 function getNRandomUniqueElements(arraySize: number, maxSampleSize: number) {
@@ -136,42 +139,76 @@ function getNRandomUniqueElements(arraySize: number, maxSampleSize: number) {
   return unique;
 }
 
-function merge(shapes: Array<Shape>, sampleSizeMax: number): Shape {
-  const merged: Shape = { kind: 'array', children: { kind: 'unknown' } };
+function merge(shapes: Array<Shape>, sampleSizeMax?: number): ArrayShape {
+  const merged: ArrayShape = { kind: 'array', children: { kind: 'unknown' } };
   if (!shapes.length) {
     return merged;
   }
 
   const randomUniqueIndexes = getNRandomUniqueElements(
     shapes.length,
-    sampleSizeMax
+    sampleSizeMax || shapes.length
   );
 
   merged.children = shapes[0];
   for (let i = 0; i < randomUniqueIndexes.length; i++) {
     const shape = shapes[randomUniqueIndexes[i]];
-
     if (deepEquals(merged.children, shape)) {
       continue;
     }
 
-    if (merged.children.kind === 'unknown') {
-      merged.children = shape;
+    if (shape.kind === 'object' && merged.children.kind === 'object') {
+      merged.children = objectMerge(deepClone(merged.children), shape);
       continue;
     }
 
-    if (merged.children.kind === shape.kind) {
-      if (shape.kind === 'object') {
-        objectMerge(merged.children as ObjectShape, shape as ObjectShape);
-        continue;
-      }
-
-      if (shape.kind === 'array') {
-        // TODO: support this
-        continue;
-      }
+    if (shape.kind === 'array' && merged.children.kind === 'array') {
+      merged.children = merge([
+        deepClone(merged.children).children,
+        shape.children,
+      ]);
+      continue;
     }
 
+    if (shape.kind === 'varied' && merged.children.kind === 'varied') {
+      merged.children = variedMerge(
+        shape as VariedShape,
+        deepClone(merged.children) as VariedShape
+      );
+      continue;
+    }
+
+    if (shape.kind === merged.children.kind && shape.kind !== 'scalar') {
+      throw new Error(
+        `Missing type equality condition for ${shape.kind} merge.`
+      );
+    }
+
+    // Don't add varied items twice
+    if (merged.children.kind === 'varied') {
+      let stack: Array<Shape> = [merged.children];
+      let found = false;
+      while (stack) {
+        const top = stack.pop();
+        if (top.kind === 'varied') {
+          top.children.map((c) => stack.push(c));
+        }
+
+        if (deepEquals(top, shape)) {
+          found = true;
+          break;
+        }
+      }
+
+      // Don't add twice
+      if (found) {
+        continue;
+      }
+
+      // Allow the new shape to be added as a varied child below
+    }
+
+    // Can only merge shapes of the same type
     merged.children = {
       kind: 'varied',
       children: [deepClone(merged.children), shape],
