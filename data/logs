@@ -1,0 +1,267 @@
+[
+  {
+    "_index": "journalbeat-7.15.0-2021.09.30-000001",
+    "_type": "_doc",
+    "_id": "VYZhR3wB0DzSz6ItiETp",
+    "_score": null,
+    "_source": {
+      "@timestamp": "2021-10-03T18:18:51.853Z",
+      "syslog": {
+        "facility": 3,
+        "identifier": "journalbeat",
+        "priority": 6
+      },
+      "journald": {
+        "host": {
+          "boot_id": "c5c705e672824c288231d9fa65c35a81"
+        },
+        "uid": 0,
+        "pid": 131972,
+        "custom": {
+          "selinux_context": "system_u:system_r:unconfined_service_t:s0",
+          "stream_id": "8834509f38c240aa81b9ee161d4d6748"
+        },
+        "process": {
+          "command_line": "/usr/share/journalbeat/bin/journalbeat --environment systemd -c /etc/journalbeat/journalbeat.yml --path.home /usr/share/journalbeat --path.config /etc/journalbeat --path.data /var/lib/journalbeat --path.logs /var/log/journalbeat",
+          "name": "journalbeat",
+          "capabilites": "1ffffffffff",
+          "executable": "/usr/share/journalbeat/bin/journalbeat"
+        },
+        "gid": 0
+      },
+      "message": "2021-10-03T18:18:51.853Z\tINFO\t[monitoring]\tlog/log.go:184\tNon-zero metrics in the last 30s\t{\"monitoring\": {\"metrics\": {\"journalbeat\":{\"beat\":{\"cgroup\":{\"cpu\":{\"id\":\"journalbeat.service\"},\"memory\":{\"id\":\"journalbeat.service\",\"mem\":{\"usage\":{\"bytes\":160198656}}}},\"cpu\":{\"system\":{\"ticks\":115930,\"time\":{\"ms\":115932}},\"total\":{\"ticks\":637580,\"time\":{\"ms\":637589},\"value\":637580},\"user\":{\"ticks\":521650,\"time\":{\"ms\":521657}}},\"handles\":{\"limit\":{\"hard\":524288,\"soft\":1024},\"open\":64},\"info\":{\"ephemeral_id\":\"0b4b6e0f-f85b-468a-9dea-9415f929d133\",\"uptime\":{\"ms\":278460069},\"version\":\"7.15.0\"},\"memstats\":{\"gc_next\":105878672,\"memory_alloc\":88977664,\"memory_sys\":217685032,\"memory_total\":37272794736,\"rss\":156942336},\"runtime\":{\"goroutines\":16}},\"libbeat\":{\"output\":{\"events\":{\"acked\":1092973,\"active\":50,\"batches\":26442,\"total\":1093023},\"read\":{\"bytes\":25054916},\"type\":\"elasticsearch\",\"write\":{\"bytes\":2382197247}},\"pipeline\":{\"clients\":1,\"events\":{\"published\":1092973,\"retry\":178000,\"total\":1092973},\"queue\":{\"acked\":1092973,\"max_events\":4096}}},\"system\":{\"cpu\":{\"cores\":2},\"load\":{\"1\":2.57,\"15\":0.45,\"5\":1.17,\"norm\":{\"1\":1.285,\"15\":0.225,\"5\":0.585}}}}}}}",
+      "host": {
+        "architecture": "aarch64",
+        "id": "4ab7f2b52a904ebeaea39727fa6c4b5f",
+        "hostname": "ip-172-31-12-135.ec2.internal",
+        "name": "ip-172-31-12-135.ec2.internal",
+        "os": {
+          "platform": "fedora",
+          "version": "34 (Cloud Edition)",
+          "family": "redhat",
+          "name": "Fedora",
+          "kernel": "5.13.16-200.fc34.aarch64",
+          "type": "linux"
+        },
+        "containerized": false,
+        "ip": [
+          "172.31.12.135",
+          "fe80::8fc:63ff:fe08:b7b5"
+        ],
+        "mac": [
+          "0a:fc:63:08:b7:b5"
+        ]
+      },
+      "user": {
+        "group": {
+          "id": "0"
+        },
+        "id": "0"
+      },
+      "systemd": {
+        "invocation_id": "6a3980a0ff254829b4e562ccadcc1822",
+        "transport": "stdout",
+        "slice": "system.slice",
+        "cgroup": "/system.slice/journalbeat.service",
+        "unit": "journalbeat.service"
+      },
+      "process": {
+        "args": [
+          "/usr/share/journalbeat/bin/journalbeat",
+          "--environment",
+          "systemd",
+          "-c",
+          "/etc/journalbeat/journalbeat.yml",
+          "--path.home",
+          "/usr/share/journalbeat",
+          "--path.config",
+          "/etc/journalbeat",
+          "--path.data",
+          "/var/lib/journalbeat",
+          "--path.logs",
+          "/var/log/journalbeat"
+        ],
+        "args_count": 13,
+        "pid": 131972,
+        "command_line": "/usr/share/journalbeat/bin/journalbeat --environment systemd -c /etc/journalbeat/journalbeat.yml --path.home /usr/share/journalbeat --path.config /etc/journalbeat --path.data /var/lib/journalbeat --path.logs /var/log/journalbeat"
+      },
+      "event": {
+        "kind": "event",
+        "created": "2021-10-03T18:19:05.854Z"
+      },
+      "log": {
+        "syslog": {
+          "priority": 6,
+          "facility": {
+            "name": 3
+          }
+        }
+      },
+      "agent": {
+        "type": "journalbeat",
+        "version": "7.15.0",
+        "hostname": "ip-172-31-12-135.ec2.internal",
+        "ephemeral_id": "0b4b6e0f-f85b-468a-9dea-9415f929d133",
+        "id": "bd6fcae1-d720-4f26-8bb0-74f9446c381c",
+        "name": "ip-172-31-12-135.ec2.internal"
+      },
+      "ecs": {
+        "version": "1.11.0"
+      },
+      "cloud": {
+        "instance": {
+          "id": "i-059d3a5b3a800814a"
+        },
+        "machine": {
+          "type": "a1.large"
+        },
+        "provider": "aws",
+        "region": "us-east-1",
+        "availability_zone": "us-east-1d",
+        "service": {
+          "name": "EC2"
+        },
+        "account": {
+          "id": "693079658475"
+        },
+        "image": {
+          "id": "ami-0da7d19221e832066"
+        }
+      }
+    },
+    "sort": [
+      1633285131853
+    ]
+  },
+  {
+    "_index": "journalbeat-7.15.0-2021.09.30-000001",
+    "_type": "_doc",
+    "_id": "VIZhR3wB0DzSz6ItDUTY",
+    "_score": null,
+    "_source": {
+      "@timestamp": "2021-10-03T18:18:32.771Z",
+      "journald": {
+        "uid": 0,
+        "pid": 677,
+        "host": {
+          "boot_id": "c5c705e672824c288231d9fa65c35a81"
+        },
+        "gid": 0,
+        "custom": {
+          "session_id": "98",
+          "leader": "201545",
+          "tid": "677",
+          "selinux_context": "system_u:system_r:systemd_logind_t:s0",
+          "user_id": "phil",
+          "message_id": "3354939424b4456d9802ca8333ed424a"
+        },
+        "process": {
+          "executable": "/usr/lib/systemd/systemd-logind",
+          "command_line": "/usr/lib/systemd/systemd-logind",
+          "name": "systemd-logind",
+          "capabilites": "24420020f"
+        },
+        "code": {
+          "line": 840,
+          "file": "src/login/logind-session.c",
+          "func": "session_finalize"
+        }
+      },
+      "syslog": {
+        "identifier": "systemd-logind",
+        "priority": 6,
+        "facility": 4
+      },
+      "message": "Removed session 98.",
+      "systemd": {
+        "transport": "journal",
+        "invocation_id": "dfa3bc009e204612af90680f5719bb20",
+        "slice": "system.slice",
+        "cgroup": "/system.slice/systemd-logind.service",
+        "unit": "systemd-logind.service"
+      },
+      "agent": {
+        "ephemeral_id": "0b4b6e0f-f85b-468a-9dea-9415f929d133",
+        "id": "bd6fcae1-d720-4f26-8bb0-74f9446c381c",
+        "name": "ip-172-31-12-135.ec2.internal",
+        "type": "journalbeat",
+        "version": "7.15.0",
+        "hostname": "ip-172-31-12-135.ec2.internal"
+      },
+      "cloud": {
+        "account": {
+          "id": "693079658475"
+        },
+        "image": {
+          "id": "ami-0da7d19221e832066"
+        },
+        "instance": {
+          "id": "i-059d3a5b3a800814a"
+        },
+        "machine": {
+          "type": "a1.large"
+        },
+        "provider": "aws",
+        "region": "us-east-1",
+        "availability_zone": "us-east-1d",
+        "service": {
+          "name": "EC2"
+        }
+      },
+      "event": {
+        "kind": "event",
+        "created": "2021-10-03T18:18:34.351Z"
+      },
+      "log": {
+        "syslog": {
+          "priority": 6,
+          "facility": {
+            "name": 4
+          }
+        }
+      },
+      "host": {
+        "containerized": false,
+        "hostname": "ip-172-31-12-135.ec2.internal",
+        "id": "4ab7f2b52a904ebeaea39727fa6c4b5f",
+        "name": "ip-172-31-12-135.ec2.internal",
+        "ip": [
+          "172.31.12.135",
+          "fe80::8fc:63ff:fe08:b7b5"
+        ],
+        "mac": [
+          "0a:fc:63:08:b7:b5"
+        ],
+        "architecture": "aarch64",
+        "os": {
+          "platform": "fedora",
+          "version": "34 (Cloud Edition)",
+          "family": "redhat",
+          "name": "Fedora",
+          "kernel": "5.13.16-200.fc34.aarch64",
+          "type": "linux"
+        }
+      },
+      "process": {
+        "pid": 677,
+        "command_line": "/usr/lib/systemd/systemd-logind",
+        "args": [
+          "/usr/lib/systemd/systemd-logind"
+        ],
+        "args_count": 1
+      },
+      "ecs": {
+        "version": "1.11.0"
+      },
+      "user": {
+        "id": "0",
+        "group": {
+          "id": "0"
+        }
+      }
+    },
+    "sort": [
+      1633285112771
+    ]
+  }
+]

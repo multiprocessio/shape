@@ -1,19 +1,19 @@
-export declare type ScalarShape = {
+export interface ScalarShape {
     kind: 'scalar';
     name: 'null' | 'string' | 'number' | 'boolean' | 'bigint';
-};
-export declare type ObjectShape = {
+}
+export interface ObjectShape {
     kind: 'object';
     children: Record<string, Shape>;
-};
-export declare type ArrayShape = {
+}
+export interface ArrayShape {
     kind: 'array';
     children: Shape;
-};
-export declare type VariedShape = {
+}
+export interface VariedShape {
     kind: 'varied';
     children: Shape[];
-};
+}
 export declare type Shape = ArrayShape | ObjectShape | VariedShape | ScalarShape | {
     kind: 'unknown';
 };
