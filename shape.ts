@@ -49,20 +49,25 @@ export function toString(shape: Shape, level = 0): string {
       return (
         levelPrefix(level) + 'Array of\n' + toString(shape.children, level + 1)
       );
-    case 'object':
+    case 'object': {
+      const keys = Object.keys(shape.children);
       return (
         levelPrefix(level) +
-        ('Object with\n' +
-          Object.keys(shape.children)
-            .map(
-              (k) =>
-                `${levelPrefix(level + 1)}'${k}' of\n${toString(
-                  shape.children[k],
-                  level + 2
-                )}`
-            )
-            .join(',\n'))
+        ('Object ' +
+          (keys.length
+            ? 'with\n' +
+              keys
+                .map(
+                  (k) =>
+                    `${levelPrefix(level + 1)}'${k}' of\n${toString(
+                      shape.children[k],
+                      level + 2
+                    )}`
+                )
+                .join(',\n')
+            : '(empty)'))
       );
+    }
     case 'varied':
       return shape.children.map((c) => toString(c, level)).join(' or\n');
     case 'unknown':
@@ -70,16 +75,74 @@ export function toString(shape: Shape, level = 0): string {
   }
 }
 
-function variedMerge(a: VariedShape, b: VariedShape): VariedShape {
-  const varied: VariedShape = { kind: 'varied', children: a.children.slice() };
-  for (const bChild of b.children) {
-    for (const aChild of a.children) {
-      if (deepEquals(bChild, aChild)) {
-        continue;
+function walkVaried(varied: VariedShape, cb: (a0: Shape) => boolean | void) {
+  const stack: Array<Shape> = [varied];
+  while (stack.length) {
+    const top = stack.pop();
+    if (top.kind === 'varied') {
+      top.children.map((c) => stack.push(c));
+    }
+
+    if (cb(top)) {
+      break;
+    }
+  }
+}
+
+function addUniqueVaried(maybeVaried: Shape, shape: Shape) {
+  if (
+    !maybeVaried ||
+    (maybeVaried.kind === 'varied' &&
+      (!maybeVaried.children || !maybeVaried.children.length))
+  ) {
+    return shape;
+  }
+
+  if (maybeVaried.kind === 'varied') {
+    const varied: VariedShape = maybeVaried;
+
+    let found = false;
+    walkVaried(varied, (child: Shape) => {
+      // Don't try to use variedMerge here, it doesn't recurse correctly.
+      if (shape.kind === 'varied') {
+        walkVaried(shape, (toAddChild: Shape) => {
+          if (deepEquals(child, toAddChild)) {
+            found = true;
+            return true;
+          }
+        });
+
+        if (found) {
+          return true;
+        }
       }
 
-      varied.children.push(bChild);
+      //console.log('attempting to add ', shape, 'comparing to ', child, 'is equal?', deepEquals(child, shape));
+      if (deepEquals(child, shape)) {
+        found = true;
+        return true;
+      }
+    });
+
+    // Don't add the same shape twice
+    if (found) {
+      return varied;
     }
+  }
+
+  const result: VariedShape = {
+    kind: 'varied',
+    children: [maybeVaried, shape],
+  };
+  return result;
+}
+
+function variedMerge(a: VariedShape, b: VariedShape): VariedShape {
+  let varied: VariedShape = { kind: 'varied', children: [] };
+  for (const side of [a, b]) {
+    walkVaried(side, (child) => {
+      varied = addUniqueVaried(varied, child) as VariedShape;
+    });
   }
 
   return varied;
@@ -136,42 +199,10 @@ function getNRandomUniqueElements(arraySize: number, maxSampleSize: number) {
   return unique;
 }
 
-function addUniqueVaried(maybeVaried: Shape, shape: Shape) {
-  if (!maybeVaried) {
-    return shape;
-  }
-
-  if (maybeVaried.kind === 'varied') {
-    const varied: VariedShape = maybeVaried;
-
-    let stack: Array<Shape> = [varied];
-    let found = false;
-    while (stack) {
-      const top = stack.pop();
-      if (top.kind === 'varied') {
-        top.children.map((c) => stack.push(c));
-      }
-
-      if (deepEquals(top, shape)) {
-        found = true;
-        break;
-      }
-    }
-
-    // Don't add the same shape twice
-    if (found) {
-      return varied;
-    }
-  }
-
-  const result: VariedShape = {
-    kind: 'varied',
-    children: [deepClone(maybeVaried), shape],
-  };
-  return result;
-}
-
-function merge(shapes: Array<Shape>, sampleSizeMax?: number): ArrayShape {
+export function merge(
+  shapes: Array<Shape>,
+  sampleSizeMax?: number
+): ArrayShape {
   const merged: ArrayShape = { kind: 'array', children: { kind: 'unknown' } };
   if (!shapes.length) {
     return merged;
@@ -202,6 +233,8 @@ function merge(shapes: Array<Shape>, sampleSizeMax?: number): ArrayShape {
       continue;
     }
 
+    // It's possible this case isn't even possible since 'varied' is
+    // something that only gets applied during post-processing here.
     if (shape.kind === 'varied' && merged.children.kind === 'varied') {
       merged.children = variedMerge(
         shape as VariedShape,

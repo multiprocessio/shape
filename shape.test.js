@@ -1,10 +1,14 @@
 const fs = require('fs');
-const { toString, shape } = require('./shape');
+const { toString, shape, merge } = require('./shape');
 
 const shapeString = (a) => toString(shape(a));
 
 test('shape', () => {
   expect(shapeString('foo')).toBe('string');
+
+  expect(shapeString([{}, 1, { a: 2 }])).toBe(
+    "Array of\n  Object (empty) or\n  number or\n  Object with\n    'a' of\n      number"
+  );
 
   expect(shapeString({ b: 'cat', c: true })).toBe(
     "Object with\n  'b' of\n    string,\n  'c' of\n    boolean"
@@ -664,4 +668,44 @@ test('promlogs', () => {
       },
     },
   });
+});
+
+test('varied merge', () => {
+  const a = {
+    kind: 'varied',
+    children: [
+      {
+        kind: 'scalar',
+        name: 'number',
+      },
+      {
+        kind: 'scalar',
+        name: 'null',
+      },
+    ],
+  };
+
+  const b = {
+    kind: 'varied',
+    children: [
+      {
+        kind: 'scalar',
+        name: 'string',
+      },
+      {
+        kind: 'varied',
+        children: [
+          {
+            kind: 'scalar',
+            name: 'null',
+          },
+        ],
+      },
+    ],
+  };
+
+  const result = merge([a, b]);
+  expect(toString(result)).toStrictEqual(
+    'Array of\n  string or\n  null or\n  number'
+  );
 });
