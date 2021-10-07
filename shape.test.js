@@ -130,7 +130,7 @@ test('basic nested objects to shape-ify correctly', () => {
 });
 
 test('elasticlogs', () => {
-  const logs = JSON.parse(fs.readFileSync('./data/logs').toString());
+  const logs = JSON.parse(fs.readFileSync('./data/elasticlogs').toString());
   expect(shape(logs)).toStrictEqual({
     kind: 'array',
     children: {
@@ -610,6 +610,56 @@ test('elasticlogs', () => {
             kind: 'scalar',
             name: 'number',
           },
+        },
+      },
+    },
+  });
+});
+
+test('promlogs', () => {
+  const logs = JSON.parse(fs.readFileSync('./data/promlogs').toString());
+  expect(shape(logs)).toStrictEqual({
+    kind: 'array',
+    children: {
+      kind: 'object',
+      children: {
+        metric: {
+          kind: 'object',
+          children: {
+            __name__: {
+              kind: 'scalar',
+              name: 'string',
+            },
+            env: {
+              kind: 'varied',
+              children: [
+                {
+                  kind: 'scalar',
+                  name: 'string',
+                },
+                {
+                  kind: 'scalar',
+                  name: 'null',
+                },
+              ],
+            },
+            instance: {
+              kind: 'scalar',
+              name: 'string',
+            },
+            job: {
+              kind: 'scalar',
+              name: 'string',
+            },
+          },
+        },
+        time: {
+          kind: 'scalar',
+          name: 'number',
+        },
+        value: {
+          kind: 'scalar',
+          name: 'string',
         },
       },
     },

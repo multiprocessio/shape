@@ -11,6 +11,8 @@ export interface ScalarShape {
   name: 'null' | 'string' | 'number' | 'boolean' | 'bigint';
 }
 
+const NULL_SHAPE: ScalarShape = { kind: 'scalar', name: 'null' };
+
 export interface ObjectShape {
   kind: 'object';
   children: Record<string, Shape>;
@@ -100,10 +102,7 @@ function objectMerge(a: ObjectShape, b: ObjectShape): ObjectShape {
     }
 
     // If they are new, they must sometimes be null/undefined
-    merged.children[key] = {
-      kind: 'varied',
-      children: [a.children[key], { kind: 'scalar', name: 'null' }],
-    };
+    merged.children[key] = addUniqueVaried(a.children[key], NULL_SHAPE);
   }
 
   // now check all bKeys to see if they are new to a
@@ -111,10 +110,8 @@ function objectMerge(a: ObjectShape, b: ObjectShape): ObjectShape {
     const key = bKeys[i];
     if (!aKeys.includes(key)) {
       // If they are new, they must sometimes be null/undefined
-      merged.children[key] = {
-        kind: 'varied',
-        children: [b.children[key], { kind: 'scalar', name: 'null' }],
-      };
+      merged.children[key] = addUniqueVaried(b.children[key], NULL_SHAPE);
+      continue;
     }
 
     // Do nothing, it's already been merged.
@@ -137,6 +134,41 @@ function getNRandomUniqueElements(arraySize: number, maxSampleSize: number) {
   }
 
   return unique;
+}
+
+function addUniqueVaried(maybeVaried: Shape, shape: Shape) {
+  if (!maybeVaried) {
+    return shape;
+  }
+
+  if (maybeVaried.kind === 'varied') {
+    const varied: VariedShape = maybeVaried;
+
+    let stack: Array<Shape> = [varied];
+    let found = false;
+    while (stack) {
+      const top = stack.pop();
+      if (top.kind === 'varied') {
+        top.children.map((c) => stack.push(c));
+      }
+
+      if (deepEquals(top, shape)) {
+        found = true;
+        break;
+      }
+    }
+
+    // Don't add the same shape twice
+    if (found) {
+      return varied;
+    }
+  }
+
+  const result: VariedShape = {
+    kind: 'varied',
+    children: [deepClone(maybeVaried), shape],
+  };
+  return result;
 }
 
 function merge(shapes: Array<Shape>, sampleSizeMax?: number): ArrayShape {
@@ -184,35 +216,7 @@ function merge(shapes: Array<Shape>, sampleSizeMax?: number): ArrayShape {
       );
     }
 
-    // Don't add varied items twice
-    if (merged.children.kind === 'varied') {
-      let stack: Array<Shape> = [merged.children];
-      let found = false;
-      while (stack) {
-        const top = stack.pop();
-        if (top.kind === 'varied') {
-          top.children.map((c) => stack.push(c));
-        }
-
-        if (deepEquals(top, shape)) {
-          found = true;
-          break;
-        }
-      }
-
-      // Don't add twice
-      if (found) {
-        continue;
-      }
-
-      // Allow the new shape to be added as a varied child below
-    }
-
-    // Can only merge shapes of the same type
-    merged.children = {
-      kind: 'varied',
-      children: [deepClone(merged.children), shape],
-    };
+    merged.children = addUniqueVaried(merged.children, shape);
   }
 
   return merged;
