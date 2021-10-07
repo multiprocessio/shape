@@ -9,9 +9,8 @@
   "scripts": {
     "typecheck": "yarn tsc",
     "format": "yarn prettier --write \"**/*.js\" \"**/*.ts\" \"**/*.json\"",
-    "test": "yarn jest",
-    "build": "yarn esbuild --platform=node --bundle --minify --target=esnext shape.ts --sourcemap --outfile=dist/index.js",
-    "test-coverage": "yarn jest --coverage"
+    "test": "yarn jest --coverage",
+    "build": "yarn esbuild --platform=node --bundle --minify --target=esnext shape.ts --sourcemap --outfile=dist/index.js"
   },
   "devDependencies": {
     "esbuild": "^0.12.7",

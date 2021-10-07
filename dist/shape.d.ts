@@ -19,4 +19,5 @@ export declare type Shape = ArrayShape | ObjectShape | VariedShape | ScalarShape
 };
 export declare function levelPrefix(level: number): string;
 export declare function toString(shape: Shape, level?: number): string;
+export declare function merge(shapes: Array<Shape>, sampleSizeMax?: number): ArrayShape;
 export declare function shape(data: any, sampleSizeMax?: number): Shape;

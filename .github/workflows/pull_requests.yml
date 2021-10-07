@@ -23,4 +23,4 @@ jobs:
     - run: yarn tsc
     - run: yarn build
     - run: ./scripts/fail_on_diff.sh
-    - run: yarn test-coverage
+    - run: yarn test

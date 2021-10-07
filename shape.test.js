@@ -1,10 +1,14 @@
 const fs = require('fs');
-const { toString, shape } = require('./shape');
+const { toString, shape, merge } = require('./shape');
 
 const shapeString = (a) => toString(shape(a));
 
 test('shape', () => {
   expect(shapeString('foo')).toBe('string');
+
+  expect(shapeString([{}, 1, { a: 2 }])).toBe(
+    "Array of\n  Object (empty) or\n  number or\n  Object with\n    'a' of\n      number"
+  );
 
   expect(shapeString({ b: 'cat', c: true })).toBe(
     "Object with\n  'b' of\n    string,\n  'c' of\n    boolean"
@@ -130,7 +134,7 @@ test('basic nested objects to shape-ify correctly', () => {
 });
 
 test('elasticlogs', () => {
-  const logs = JSON.parse(fs.readFileSync('./data/logs').toString());
+  const logs = JSON.parse(fs.readFileSync('./data/elasticlogs').toString());
   expect(shape(logs)).toStrictEqual({
     kind: 'array',
     children: {
@@ -614,4 +618,94 @@ test('elasticlogs', () => {
       },
     },
   });
+});
+
+test('promlogs', () => {
+  const logs = JSON.parse(fs.readFileSync('./data/promlogs').toString());
+  expect(shape(logs)).toStrictEqual({
+    kind: 'array',
+    children: {
+      kind: 'object',
+      children: {
+        metric: {
+          kind: 'object',
+          children: {
+            __name__: {
+              kind: 'scalar',
+              name: 'string',
+            },
+            env: {
+              kind: 'varied',
+              children: [
+                {
+                  kind: 'scalar',
+                  name: 'string',
+                },
+                {
+                  kind: 'scalar',
+                  name: 'null',
+                },
+              ],
+            },
+            instance: {
+              kind: 'scalar',
+              name: 'string',
+            },
+            job: {
+              kind: 'scalar',
+              name: 'string',
+            },
+          },
+        },
+        time: {
+          kind: 'scalar',
+          name: 'number',
+        },
+        value: {
+          kind: 'scalar',
+          name: 'string',
+        },
+      },
+    },
+  });
+});
+
+test('varied merge', () => {
+  const a = {
+    kind: 'varied',
+    children: [
+      {
+        kind: 'scalar',
+        name: 'number',
+      },
+      {
+        kind: 'scalar',
+        name: 'null',
+      },
+    ],
+  };
+
+  const b = {
+    kind: 'varied',
+    children: [
+      {
+        kind: 'scalar',
+        name: 'string',
+      },
+      {
+        kind: 'varied',
+        children: [
+          {
+            kind: 'scalar',
+            name: 'null',
+          },
+        ],
+      },
+    ],
+  };
+
+  const result = merge([a, b]);
+  expect(toString(result)).toStrictEqual(
+    'Array of\n  string or\n  null or\n  number'
+  );
 });
