@@ -14,7 +14,7 @@ You can try it out online in the [DataStation app](https://app.datastation.multi
 ## Install
 
 ```bash
-$ yarn add https://github.com/multiprocessio/shape
+$ yarn add @multiprocess/shape
 ```
 
 ## Examples
