@@ -20,7 +20,7 @@ $ yarn add @multiprocess/shape
 ## Examples
 
 ```javascript
-import { shape, toString } from 'shape';
+import { shape, toString } from '@multiprocess/shape';
 
 const schema = shape({
   "results": [
