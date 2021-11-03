@@ -114,6 +114,10 @@ argument to `shape`. For example `shape(data, false)`.
 However, turning off sampling will eventually wreck your stack as you
 pass bigger objects to `shape`.
 
+## Users
+
+* [DataStation](https://github.com/multiprocessio/datastation)
+
 ## License
 
 Apache-2.0, see [./LICENSE.md](./LICENSE.md).
